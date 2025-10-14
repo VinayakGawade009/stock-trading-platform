@@ -2,7 +2,7 @@ export default function Hero() {
 
     return (
         <>
-            <div className="container mb-5 p-5" style={{marginTop: "-5rem"}}>
+            <div className="container mb-5 p-5 mt-5" style={{marginTop: "-5rem"}}>
                 <div className="row text-center p-5">
                 
                     <img src="media/images/homeHero.svg" alt="Hero Image" className="mb-4" style={{width: "65%", margin: "auto"}}/>

@@ -2,7 +2,7 @@ export default function Awards() {
 
     return (
         <>
-            <div className="container mt-5 p-5" style={{marginTop: "-5rem"}}>
+            <div className="container mt-5 p-5">
                 <div className="row p-5">
                     <div className="col-6 p-5">
                         <img src="media/images/largestBroker.svg" alt="AwardImage" />
