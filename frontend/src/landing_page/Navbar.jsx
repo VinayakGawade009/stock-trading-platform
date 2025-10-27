@@ -6,7 +6,7 @@ export default function Navbar() {
         <>
             <div>
                 <nav className="navbar navbar-expand-lg border-bottom fixed-top" style={{ backgroundColor: "white" }}>
-                    <div className="container p-2">
+                    <div className="container px-5 py-2">
                         <Link className="navbar-brand" to="/">
                             <img src="media/images/logo.svg" style={{ width: "23%" }} alt="logo" />
                         </Link>
