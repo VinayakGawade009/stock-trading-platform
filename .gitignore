@@ -1,2 +1,4 @@
 dashboard/node_modules/
 frontend/learnings/
+backend/.env
+backend/node_modules
