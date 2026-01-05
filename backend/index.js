@@ -8,6 +8,7 @@ dotenv.config();
 
 import { HoldingsModel } from "./model/HoldingsModel.js";
 import { PositionsModel } from "./model/PositionsModel.js";
+import { OrdersModel } from "./model/OrdersModel.js";
 
 const PORT = process.env.PORT || 3002;
 const uri = process.env.MONGO_URL;
@@ -134,7 +135,7 @@ app.use(bodyParser.json());
 //     let newHolding = new HoldingsModel( {
 //       name: item.name,
 //       qty: item.qty,
-//       avg: item.avh,
+//       avg: item.avg,
 //       price: item.price,
 //       net: item.net,
 //       day: item.day,
@@ -187,15 +188,96 @@ app.use(bodyParser.json());
 //   res.send("Positions Done");
 // });
 
-app.get("/allHoldings", async(req, res) => {
+app.get("/allHoldings", async (req, res) => {
   let allHoldings = await HoldingsModel.find({});
   res.json(allHoldings);
 });
 
-app.get("/allPositions", async(req, res) => {
+app.get("/allPositions", async (req, res) => {
   let allPositions = await PositionsModel.find({});
   res.json(allPositions);
 });
+
+app.post("/newOrder", async (req, res) => {
+  let newOrder = new OrdersModel({
+    name: req.body.name,
+    qty: req.body.qty,
+    price: req.body.price,
+    mode: "BUY",
+  }); 
+
+  newOrder.save();
+
+  const existingHolding = await HoldingsModel.findOne({ name: newOrder.name });
+
+  if (!existingHolding) {
+    // create new Holding
+    const newHolding = new HoldingsModel({
+      name: newOrder.name,
+      qty: newOrder.qty,
+      avg: newOrder.price,
+      price: newOrder.price,
+      net: "0%",
+      day: "0%",
+    });
+
+    await newHolding.save();
+
+  } else {
+    const totalQty = existingHolding.qty + newOrder.qty;
+    const newAvg =
+      (existingHolding.avg * existingHolding.qty + newOrder.price * newOrder.qty) / totalQty;
+
+    existingHolding.qty = totalQty;
+    existingHolding.avg = newAvg;
+    existingHolding.price = newOrder.price;
+
+
+    await existingHolding.save();
+
+  }
+
+  
+  res.send("Order saved!");
+});
+
+app.get("/allOrders", async (req, res) => {
+  let allOrders = await OrdersModel.find({});
+  res.json(allOrders);
+});
+
+app.post("/sellOrder", async (req, res) => {
+  let sellOrder = new OrdersModel({
+    name: req.body.name,
+    qty: req.body.qty,
+    price: req.body.price,
+    mode: "SELL",
+  }); 
+
+  sellOrder.save();
+  res.send("Sell order saved");
+
+  const holding = await HoldingsModel.findOne({ name });
+
+  if (!holding) {
+    return res.status(400).send("No holdings to sell");
+  }
+
+  if (holding.qty < sellQty) {
+    return res.status(400).send("Not enough quantity");
+  }
+
+  holding.qty -= sellQty;
+  holding.price = sellPrice;
+
+  if (holding.qty === 0) {
+    await HoldingsModel.deleteOne({ name });
+  } else {
+    await holding.save();
+  }
+
+});
+
 
 app.listen(PORT, () => {
   console.log("APP started");
