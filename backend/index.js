@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 import express from "express";
 import mongoose from "mongoose";
-import bodyParser from "body-parser";
+// import bodyParser from "body-parser";
 import cors from "cors";
 
 dotenv.config();
@@ -10,13 +10,26 @@ import { HoldingsModel } from "./model/HoldingsModel.js";
 import { PositionsModel } from "./model/PositionsModel.js";
 import { OrdersModel } from "./model/OrdersModel.js";
 
+import cookieParser from "cookie-parser";
+import authRoutes from "./routes/authRoutes.js";
+
 const PORT = process.env.PORT || 3002;
 const uri = process.env.MONGO_URL;
 
 const app = express();
 
-app.use(cors());
-app.use(bodyParser.json());
+// Body parsing - MUST be before CORS in some cases
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+// app.use(bodyParser.json());
+
+// CORS with proper configuration
+app.use(cors({
+  origin: true,
+  credentials: true
+}));
+
+app.use(cookieParser());
 
 // app.get('/addHoldings', async (req, res) => {
 //   let tempHoldings = [
@@ -247,10 +260,12 @@ app.get("/allOrders", async (req, res) => {
 });
 
 app.post("/sellOrder", async (req, res) => {
+  const { name, qty, price } = req.body;
+
   let sellOrder = new OrdersModel({
-    name: req.body.name,
-    qty: req.body.qty,
-    price: req.body.price,
+    name: name,
+    qty: qty,
+    price: price,
     mode: "SELL",
   }); 
 
@@ -263,12 +278,12 @@ app.post("/sellOrder", async (req, res) => {
     return res.status(400).send("No holdings to sell");
   }
 
-  if (holding.qty < sellQty) {
+  if (holding.qty < qty) {
     return res.status(400).send("Not enough quantity");
   }
 
-  holding.qty -= sellQty;
-  holding.price = sellPrice;
+  holding.qty -= qty;
+  holding.price = price;
 
   if (holding.qty === 0) {
     await HoldingsModel.deleteOne({ name });
@@ -278,9 +293,18 @@ app.post("/sellOrder", async (req, res) => {
 
 });
 
+// New auth route registration
+app.use("/auth", authRoutes);
 
-app.listen(PORT, () => {
-  console.log("APP started");
-  mongoose.connect(uri);
-  console.log("DB connected");
-});
+// Connect to database BEFORE starting server
+mongoose.connect(uri)
+  .then(() => {
+    console.log("DB connected");
+    app.listen(PORT, () => {
+      console.log("APP started on port", PORT);
+    });
+  })
+  .catch((error) => {
+    console.error("Database connection error:", error);
+    process.exit(1);
+  });
