@@ -9,7 +9,7 @@ export default function NotFound() {
 
                     <p className="fs-5 mb-5">Sorry, the page you are looking for does not exist.</p>
 
-                    <button className="p-2 btn fs-5" style={{width: "27%", margin: "0 auto", backgroundColor: "#387ed1", color: "white", borderRadius: "3px"}}>Go Home</button>
+                    <a href="/"><button className="p-2 btn fs-5" style={{width: "27%", margin: "0 auto", backgroundColor: "#387ed1", color: "white", borderRadius: "3px"}} >Go Home</button></a>
                 </div>
             </div>
         </>
