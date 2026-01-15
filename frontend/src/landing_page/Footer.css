@@ -1,0 +1,31 @@
+.footerLinks {
+    display: flex;
+    justify-content: space-between;
+}
+
+.footerLinks div ul {
+    list-style-type: none;
+}
+
+.footerLinks div a {
+    text-decoration: none;
+    color: #666;
+    font-weight: 400;
+    font-size: .875rem;
+}
+
+.footerLinks div ul li {
+    line-height: 2;
+}
+
+.socials {
+    color: #666666;
+    size: 3rem;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.socials i {
+    padding: 0rem 2rem 0.5rem 0rem;
+    font-size: 1.175rem;
+}
