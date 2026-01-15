@@ -1,0 +1,4 @@
+{
+  "watch": ["index.js", "models", "schemas"],
+  "ignore": ["../dashboard", "../frontend", "node_modules"]
+}

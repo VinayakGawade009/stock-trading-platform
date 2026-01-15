@@ -4,7 +4,7 @@ const OrdersSchema = new Schema({
     name: String,
     qty : Number,
     price: Number,
-    percent: String,
+    mode: String,
 });
 
 export { OrdersSchema };

@@ -1,21 +1,35 @@
 import dotenv from "dotenv";
 import express from "express";
 import mongoose from "mongoose";
-import bodyParser from "body-parser";
+// import bodyParser from "body-parser";
 import cors from "cors";
 
 dotenv.config();
 
 import { HoldingsModel } from "./model/HoldingsModel.js";
 import { PositionsModel } from "./model/PositionsModel.js";
+import { OrdersModel } from "./model/OrdersModel.js";
+
+import cookieParser from "cookie-parser";
+import authRoutes from "./routes/authRoutes.js";
 
 const PORT = process.env.PORT || 3002;
 const uri = process.env.MONGO_URL;
 
 const app = express();
 
-app.use(cors());
-app.use(bodyParser.json());
+// Body parsing - MUST be before CORS in some cases
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+// app.use(bodyParser.json());
+
+// CORS with proper configuration
+app.use(cors({
+  origin: true,
+  credentials: true
+}));
+
+app.use(cookieParser());
 
 // app.get('/addHoldings', async (req, res) => {
 //   let tempHoldings = [
@@ -134,7 +148,7 @@ app.use(bodyParser.json());
 //     let newHolding = new HoldingsModel( {
 //       name: item.name,
 //       qty: item.qty,
-//       avg: item.avh,
+//       avg: item.avg,
 //       price: item.price,
 //       net: item.net,
 //       day: item.day,
@@ -187,18 +201,110 @@ app.use(bodyParser.json());
 //   res.send("Positions Done");
 // });
 
-app.get("/allHoldings", async(req, res) => {
+app.get("/allHoldings", async (req, res) => {
   let allHoldings = await HoldingsModel.find({});
   res.json(allHoldings);
 });
 
-app.get("/allPositions", async(req, res) => {
+app.get("/allPositions", async (req, res) => {
   let allPositions = await PositionsModel.find({});
   res.json(allPositions);
 });
 
-app.listen(PORT, () => {
-  console.log("APP started");
-  mongoose.connect(uri);
-  console.log("DB connected");
+app.post("/newOrder", async (req, res) => {
+  let newOrder = new OrdersModel({
+    name: req.body.name,
+    qty: req.body.qty,
+    price: req.body.price,
+    mode: "BUY",
+  }); 
+
+  newOrder.save();
+
+  const existingHolding = await HoldingsModel.findOne({ name: newOrder.name });
+
+  if (!existingHolding) {
+    // create new Holding
+    const newHolding = new HoldingsModel({
+      name: newOrder.name,
+      qty: newOrder.qty,
+      avg: newOrder.price,
+      price: newOrder.price,
+      net: "0%",
+      day: "0%",
+    });
+
+    await newHolding.save();
+
+  } else {
+    const totalQty = existingHolding.qty + newOrder.qty;
+    const newAvg =
+      (existingHolding.avg * existingHolding.qty + newOrder.price * newOrder.qty) / totalQty;
+
+    existingHolding.qty = totalQty;
+    existingHolding.avg = newAvg;
+    existingHolding.price = newOrder.price;
+
+
+    await existingHolding.save();
+
+  }
+
+  
+  res.send("Order saved!");
 });
+
+app.get("/allOrders", async (req, res) => {
+  let allOrders = await OrdersModel.find({});
+  res.json(allOrders);
+});
+
+app.post("/sellOrder", async (req, res) => {
+  const { name, qty, price } = req.body;
+
+  let sellOrder = new OrdersModel({
+    name: name,
+    qty: qty,
+    price: price,
+    mode: "SELL",
+  }); 
+
+  sellOrder.save();
+  res.send("Sell order saved");
+
+  const holding = await HoldingsModel.findOne({ name });
+
+  if (!holding) {
+    return res.status(400).send("No holdings to sell");
+  }
+
+  if (holding.qty < qty) {
+    return res.status(400).send("Not enough quantity");
+  }
+
+  holding.qty -= qty;
+  holding.price = price;
+
+  if (holding.qty === 0) {
+    await HoldingsModel.deleteOne({ name });
+  } else {
+    await holding.save();
+  }
+
+});
+
+// New auth route registration
+app.use("/auth", authRoutes);
+
+// Connect to database BEFORE starting server
+mongoose.connect(uri)
+  .then(() => {
+    console.log("DB connected");
+    app.listen(PORT, () => {
+      console.log("APP started on port", PORT);
+    });
+  })
+  .catch((error) => {
+    console.error("Database connection error:", error);
+    process.exit(1);
+  });
