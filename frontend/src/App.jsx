@@ -9,6 +9,7 @@ import SupportPage from "./landing_page/support/SupportPage"
 import Navbar from './landing_page/Navbar'
 import Footer from './landing_page/Footer'
 import NotFound from './landing_page/NotFound'
+import LoginForm from './landing_page/signup/LoginForm'
 
 function App() {
 
@@ -18,6 +19,7 @@ function App() {
 			<Routes>
 				<Route path='/' element={<HomePage />} />
 				<Route path='/signup' element={<Signup />} />
+				<Route path='/login' element={<LoginForm />} />
 				<Route path='/about' element={<AboutPage />} />
 				<Route path='/products' element={<ProductPage />} />
 				<Route path='/pricing' element={<PricingPage />} />

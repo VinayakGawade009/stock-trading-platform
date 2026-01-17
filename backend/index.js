@@ -13,6 +13,8 @@ import { OrdersModel } from "./model/OrdersModel.js";
 import cookieParser from "cookie-parser";
 import authRoutes from "./routes/authRoutes.js";
 
+import { verifyUser } from "./middlewares/authMiddleware.js";
+
 const PORT = process.env.PORT || 3002;
 const uri = process.env.MONGO_URL;
 
@@ -25,7 +27,10 @@ app.use(express.urlencoded({ extended: true }));
 
 // CORS with proper configuration
 app.use(cors({
-  origin: true,
+  origin: [
+    "http://localhost:5173",
+    "http://localhost:5174",
+  ],
   credentials: true
 }));
 
@@ -201,17 +206,17 @@ app.use(cookieParser());
 //   res.send("Positions Done");
 // });
 
-app.get("/allHoldings", async (req, res) => {
+app.get("/allHoldings", verifyUser, async (req, res) => {
   let allHoldings = await HoldingsModel.find({});
   res.json(allHoldings);
 });
 
-app.get("/allPositions", async (req, res) => {
+app.get("/allPositions", verifyUser, async (req, res) => {
   let allPositions = await PositionsModel.find({});
   res.json(allPositions);
 });
 
-app.post("/newOrder", async (req, res) => {
+app.post("/newOrder", verifyUser, async (req, res) => {
   let newOrder = new OrdersModel({
     name: req.body.name,
     qty: req.body.qty,
@@ -254,12 +259,12 @@ app.post("/newOrder", async (req, res) => {
   res.send("Order saved!");
 });
 
-app.get("/allOrders", async (req, res) => {
+app.get("/allOrders", verifyUser, async (req, res) => {
   let allOrders = await OrdersModel.find({});
   res.json(allOrders);
 });
 
-app.post("/sellOrder", async (req, res) => {
+app.post("/sellOrder", verifyUser, async (req, res) => {
   const { name, qty, price } = req.body;
 
   let sellOrder = new OrdersModel({

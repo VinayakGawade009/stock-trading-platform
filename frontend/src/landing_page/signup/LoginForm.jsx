@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
+import HeroForLogin from "./HeroForLogin";
 
 export default function LoginForm() {
-  const navigate = useNavigate();
+  // const navigate = useNavigate(); // As we have to navigate to different app we don't need this
   const [inputValue, setInputValue] = useState({
     email: "",
     password: "",
@@ -59,9 +60,10 @@ export default function LoginForm() {
 
   return (
     <>
-      <div className="container p-5" style={{ marginTop: "-11rem", marginBottom: "-10rem" }}>
+      <HeroForLogin/>
+      <div className="container p-5" style={{ marginTop: "-9rem" }}>
         <div className="row p-5 d-flex flex-wrap">
-          <div className="col-4 p-3 d-flex flex-column justify-content-center">
+          <div className="col-5 p-3 d-flex flex-column justify-content-center">
             <h1 className="fs-3 mb-4">Login</h1>
 
             <div className="form_container">
@@ -99,7 +101,7 @@ export default function LoginForm() {
 
           </div>
 
-          <div className="col-1"></div>
+          {/* <div className="col-1"></div> */}
 
           <div className="col-7 p-5">
             <img src="/media/images/kite.svg" className="img-fluid" alt="kite" />

@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 export default function Hero() {
 
     return (
@@ -11,7 +13,7 @@ export default function Hero() {
 
                     <p className="fs-5 mb-5">Online platform to invest in stocks, derivatives, mutual funds, ETFs, bonds, and more.</p>
 
-                    <button className="p-2 btn fs-5" style={{width: "27%", margin: "0 auto", backgroundColor: "#387ed1", color: "white", borderRadius: "3px"}}>Sign up for free</button>
+                    <Link to="/signup"><button className="p-2 btn fs-5" style={{width: "27%", margin: "0 auto", backgroundColor: "#387ed1", color: "white", borderRadius: "3px"}}>Sign up for free</button></Link>
                 </div>
             </div>
         </>

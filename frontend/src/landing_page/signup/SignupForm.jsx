@@ -4,7 +4,7 @@ import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 
 export default function SignupForm() {
-  const navigate = useNavigate();
+  // const navigate = useNavigate(); // As we have to navigate to different app we don't need this
   const [inputValue, setInputValue] = useState({
     email: "",
     password: "",
@@ -60,7 +60,7 @@ export default function SignupForm() {
   };
   return (
     <>
-      <div className="container p-5" style={{ marginTop: "-9rem" }}>
+      <div className="container p-5" style={{ marginTop: "-10rem" }}>
         <div className="row p-5 d-flex flex-wrap">
           <div className="col-7 p-5">
             <img src="media/images/signupimg1.svg" className="img-fluid" alt="signup" />
@@ -110,7 +110,7 @@ export default function SignupForm() {
                 <button type="submit" className="p-2 btn fs-5 mb-2" style={{width: "37%", margin: "0 auto", backgroundColor: "#387ed1", color: "white", borderRadius: "3px"}}>Submit</button>
                 <br />
                 <span>
-                  Already have an account? <Link to={"/signup"}>Login</Link>
+                  Already have an account? <Link to={"/login"}>Login</Link>
                 </span>
               </form>
               <ToastContainer />

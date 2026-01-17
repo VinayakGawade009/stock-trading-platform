@@ -1,5 +1,5 @@
 import {Router} from "express";
-import { signup, login } from "../controllers/authController.js";
+import { signup, login, logout } from "../controllers/authController.js"; 
 import { verifyUser } from "../middlewares/authMiddleware.js";
 
 const router = Router();
@@ -15,5 +15,7 @@ router.get("/me", verifyUser, (req, res) => {
         user: req.user,
     });
 });
+// Logout route
+router.post("/logout", logout);
 
 export default router;

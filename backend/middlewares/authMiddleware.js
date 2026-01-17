@@ -3,19 +3,20 @@ import User from "../model/UserModel.js";
 
 export const verifyUser = async (req, res, next) => {
     try {
-        const authHeader = req.headers.authorization;
+        // Read the token from cookies
+        const token = req.cookies.token;
 
-        if(!authHeader || !authHeader.startsWith("Bearer ")) {
+        if (!token) { 
             return res.status(401).json({
                 success: false,
                 message: "No token provided",
             });
         }
 
-        const token = authHeader.split(" ")[1];
-
+        // Verify the token
         const decoded = jwt.verify(token, process.env.TOKEN_KEY);
 
+        // Find the user in the database
         const user = await User.findById(decoded.id).select("-password");
 
         if (!user) {
@@ -25,7 +26,7 @@ export const verifyUser = async (req, res, next) => {
             });
         }
 
-        // attach user to request
+        // Attach the user to the request object
         req.user = user;
 
         next();

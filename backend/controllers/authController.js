@@ -1,6 +1,13 @@
 import User from "../model/UserModel.js";
 import bcrypt from "bcryptjs";
 import { createToken } from "../utils/createToken.js";
+ 
+const cookieOptions = {
+  httpOnly: true,
+  sameSite: "lax",
+  secure: false, // true ONLY in production HTTPS
+};
+
 
 export const signup = async (req, res) => {
   try {
@@ -29,10 +36,7 @@ export const signup = async (req, res) => {
     // Generate JWT
     const token = createToken(user._id);
 
-    res.cookie("token", token, {
-      withCredentials: true,
-      httpOnly: false,
-    });
+    res.cookie("token", token, cookieOptions);
 
     // Send response
     res.status(201).json({
@@ -79,10 +83,7 @@ export const login = async (req, res) => {
 
     const token = createToken(user._id);
 
-    res.cookie("token", token, {
-      withCredentials: true,
-      httpOnly: false,
-    });
+    res.cookie("token", token, cookieOptions);
 
     res.status(200).json({
       success: true,
@@ -101,4 +102,10 @@ export const login = async (req, res) => {
     console.error("Error message:", error.message);
     res.status(500).json({ message: "Login failed" });
   }
+};
+
+export const logout = (req, res) => {
+  res.clearCookie("token", cookieOptions);
+
+  return res.status(200).json({ success: true });
 };
