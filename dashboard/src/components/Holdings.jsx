@@ -1,18 +1,23 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { VerticalGraph } from "./VerticalGraph";
 
 // import { holdings } from "../data/data";
 
+import GeneralContext from "./GeneralContext";
+
 const Holdings = () => {
     const [allHoldings, setAllHoldings] = useState([]);
+    const { refreshTrigger } = useContext(GeneralContext);
 
     useEffect(() => {
-        axios.get("http://localhost:3002/allHoldings").then((res) => {
+        axios.get("http://localhost:3002/allHoldings", { withCredentials: true }).then((res) => {
             console.log(res.data);
             setAllHoldings(res.data);
+        }).catch((err) => {
+            console.error("Error fetching holdings:", err);
         });
-    }, []);
+    }, [refreshTrigger]);
 
     
 // const labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
