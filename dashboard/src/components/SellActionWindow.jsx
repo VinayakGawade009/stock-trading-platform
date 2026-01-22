@@ -8,23 +8,25 @@ import "./BuyActionWindow.css"; // reuse same css for now
 const SellActionWindow = ({ uid }) => {
   const [stockQuantity, setStockQuantity] = useState(1);
   const [stockPrice, setStockPrice] = useState(0.0);
-  const { closeSellWindow, refreshData } = useContext(GeneralContext);
 
-  const handleSellClick = () => {
-    axios.post("http://localhost:3002/sellOrder", {
-      name: uid,
-      qty: stockQuantity,
-      price: stockPrice,
-      mode: "SELL",
-    }, { withCredentials: true })
-      .then((res) => {
-        console.log("Sell order placed:", res.data);
-        refreshData();
-        closeSellWindow();
-      })
-      .catch((err) => {
-        console.error("Error placing sell order:", err);
-      });
+  const { closeSellWindow, triggerRefresh } = useContext(GeneralContext);
+
+  const handleSellClick = async () => {
+    try {
+      await axios.post("http://localhost:3002/sellOrder", {
+        name: uid,
+        qty: stockQuantity,
+        price: stockPrice,
+        mode: "SELL",
+      }, { withCredentials: true })
+
+      triggerRefresh();
+      closeSellWindow();
+
+    } catch(error) {
+      console.error("Error in sell: ", error);
+    }
+    
   };
 
   const handleCancelClick = () => {
@@ -59,9 +61,9 @@ const SellActionWindow = ({ uid }) => {
       <div className="buttons">
         <span>Margin required ₹140.65</span>
         <div>
-          <Link className="btn btn-red" onClick={handleSellClick}>
+          <button className="btn btn-red" onClick={handleSellClick}>
             Sell
-          </Link>
+          </button>
           <Link className="btn btn-grey" onClick={handleCancelClick}>
             Cancel
           </Link>

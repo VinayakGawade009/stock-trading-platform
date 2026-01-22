@@ -6,16 +6,17 @@ import SellActionWindow from "./SellActionWindow";
 const GeneralContext = createContext({
   openBuyWindow: (uid) => {},
   closeBuyWindow: () => {},
-  openSellWindow: () => {},
+  openSellWindow: (uid) => {},
   closeSellWindow: () => {},
-  refreshData: () => {},
+  refreshCount: 0,
+  triggerRefresh: () => {}
 });
 
 export const GeneralContextProvider = (props) => {
   const [isBuyWindowOpen, setIsBuyWindowOpen] = useState(false);
   const [isSellWindowOpen, setIsSellWindowOpen] = useState(false);
   const [selectedStockUID, setSelectedStockUID] = useState("");
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [refreshCount, setRefreshCount] = useState(0);
 
   const handleOpenBuyWindow = (uid) => {
     setIsBuyWindowOpen(true);
@@ -37,8 +38,9 @@ export const GeneralContextProvider = (props) => {
     setSelectedStockUID("");
   };
 
-  const handleRefreshData = () => {
-    setRefreshTrigger(prev => prev + 1);
+  const triggerRefresh = () => {
+    console.log("1. Context: triggerRefresh called!");
+    setRefreshCount(prev => prev + 1);
   };
 
   return (
@@ -48,8 +50,8 @@ export const GeneralContextProvider = (props) => {
         closeBuyWindow: handleCloseBuyWindow,
         openSellWindow: handleOpenSellWindow,
         closeSellWindow: handleCloseSellWindow,
-        refreshData: handleRefreshData,
-        refreshTrigger,
+        refreshCount,
+        triggerRefresh,
       }}
     >
       {props.children}

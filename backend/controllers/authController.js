@@ -26,11 +26,12 @@ export const signup = async (req, res) => {
       });
     }
 
-    // Create user (password hashing happens in UserModel pre-save hook)
+    // Create user 
+    const hashedPassword = await bcrypt.hash(password, 12);
     const user = await User.create({
       email,
       username,
-      password,
+      password: hashedPassword
     });
 
     // Generate JWT

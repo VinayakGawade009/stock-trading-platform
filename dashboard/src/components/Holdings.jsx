@@ -8,7 +8,7 @@ import GeneralContext from "./GeneralContext";
 
 const Holdings = () => {
     const [allHoldings, setAllHoldings] = useState([]);
-    const { refreshTrigger } = useContext(GeneralContext);
+    const { refreshCount } = useContext(GeneralContext);
 
     useEffect(() => {
         axios.get("http://localhost:3002/allHoldings", { withCredentials: true }).then((res) => {
@@ -17,7 +17,7 @@ const Holdings = () => {
         }).catch((err) => {
             console.error("Error fetching holdings:", err);
         });
-    }, [refreshTrigger]);
+    }, [refreshCount]); // refreshCount added to dependency array
 
     
 // const labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];

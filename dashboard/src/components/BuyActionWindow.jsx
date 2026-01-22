@@ -10,23 +10,26 @@ import "./BuyActionWindow.css";
 const BuyActionWindow = ({ uid }) => {
   const [stockQuantity, setStockQuantity] = useState(1); // no of stock
   const [stockPrice, setStockPrice] = useState(0.0); // price of stock
-  const { closeBuyWindow, refreshData } = useContext(GeneralContext);
 
-  const handleBuyClick = () => {
-    axios.post("http://localhost:3002/newOrder", {
-      name: uid,
-      qty: stockQuantity,
-      price: stockPrice,
-      mode: "BUY",
-    }, { withCredentials: true })
-      .then((res) => {
-        console.log("Order placed:", res.data);
-        refreshData();
-        closeBuyWindow();
-      })
-      .catch((err) => {
-        console.error("Error placing order:", err);
-      });
+  const { closeBuyWindow, triggerRefresh } = useContext(GeneralContext);
+
+  const handleBuyClick = async () => {
+    try {
+      await axios.post("http://localhost:3002/newOrder",
+        {
+          name: uid,
+          qty: stockQuantity,
+          price: stockPrice,
+          mode: "BUY",
+        }, { withCredentials: true });
+
+      console.log("BuyWindow: Order Success, calling triggerRefresh...");
+      triggerRefresh();
+      closeBuyWindow();
+    } catch (error) {
+      console.error("Error in buy: ", error);
+    }
+
   };
 
   const handleCancelClick = () => {
@@ -64,9 +67,9 @@ const BuyActionWindow = ({ uid }) => {
       <div className="buttons">
         <span>Margin required ₹140.65</span>
         <div>
-          <Link className="btn btn-blue" onClick={handleBuyClick}>
+          <button className="btn btn-blue" onClick={handleBuyClick}>
             Buy
-          </Link>
+          </button>
           <Link to="" className="btn btn-grey" onClick={handleCancelClick}>
             Cancel
           </Link>

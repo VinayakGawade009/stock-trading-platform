@@ -8,7 +8,7 @@ import GeneralContext from "./GeneralContext";
 const Positions = () => {
 
   const [allPositions, setAllPositions] = useState([]);
-  const { refreshTrigger } = useContext(GeneralContext);
+  const { refreshCount } = useContext(GeneralContext);
 
   useEffect(() => {
     axios.get("http://localhost:3002/allPositions", { withCredentials: true }).then((res) => {
@@ -17,7 +17,7 @@ const Positions = () => {
     }).catch((err) => {
       console.error("Error fetching positions:", err);
     });
-  }, [refreshTrigger]);
+  }, [refreshCount]);
 
   return (
     <>

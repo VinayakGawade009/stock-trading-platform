@@ -6,7 +6,7 @@ import GeneralContext from "./GeneralContext";
 
 const Orders = () => {
   const [allOrders, setAllOrders] = useState([]);
-  const { refreshTrigger } = useContext(GeneralContext);
+  const { refreshCount } = useContext(GeneralContext);
 
   useEffect(() => {
     axios.get("http://localhost:3002/allOrders", { withCredentials: true }).then((res) => {
@@ -15,7 +15,7 @@ const Orders = () => {
     }).catch((err) => {
       console.error("Error fetching orders:", err);
     });
-  }, [refreshTrigger]);
+  }, [refreshCount]);
 
   return (
     <div className="orders">
