@@ -8,19 +8,42 @@ import GeneralContext from "./GeneralContext";
 
 const Holdings = () => {
     const [allHoldings, setAllHoldings] = useState([]);
+    const [portfolioSummary, setPortfolioSummary] = useState({
+        totalInvestment: 0,
+        currentValue: 0,
+        totalPL: 0,
+        pnlPercent: 0
+    });
+
     const { refreshCount } = useContext(GeneralContext);
 
     useEffect(() => {
         axios.get("http://localhost:3002/allHoldings", { withCredentials: true }).then((res) => {
             console.log(res.data);
             setAllHoldings(res.data);
+
+            // Calculate totals dynamically from the fetched data
+            let investment = 0;
+            let currVal = 0;
+
+            res.data.forEach(stock => {
+                investment += stock.avg * stock.qty;
+                currVal += stock.price * stock.qty;
+            });
+
+            setPortfolioSummary({
+                totalInvestment: investment,
+                currentValue: currVal,
+                totalPL: currVal - investment,
+                pnlPercent: investment === 0 ? 0 : ((currVal - investment) / investment) * 100
+            });
+
         }).catch((err) => {
             console.error("Error fetching holdings:", err);
         });
     }, [refreshCount]); // refreshCount added to dependency array
 
-    
-// const labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
+
     const labels = allHoldings.map((subArray) => subArray["name"]);
 
     const data = {
@@ -33,22 +56,7 @@ const Holdings = () => {
             },
         ],
     };
-// export const data = {
-//   labels,
-//   datasets: [
-//     {
-//       label: 'Dataset 1',
-//       data: labels.map(() => faker.datatype.number({ min: 0, max: 1000 })),
-//       backgroundColor: 'rgba(255, 99, 132, 0.5)',
-//     },
-//     {
-//       label: 'Dataset 2',
-//       data: labels.map(() => faker.datatype.number({ min: 0, max: 1000 })),
-//       backgroundColor: 'rgba(53, 162, 235, 0.5)',
-//     },
-//   ],
-// };
-    
+
     return (
         <>
             {/* dynamic length */}
@@ -74,7 +82,7 @@ const Holdings = () => {
                             const curValue = stock.price * stock.qty;
                             const isProfit = curValue - stock.avg * stock.qty >= 0.0;
                             const profClass = isProfit ? "profit" : "loss";
-                            const dayClass = stock.isLoss ? "loss" : "profit";
+                            const dayClass = stock.day >= 0 ? "profit" : "loss";
 
                             return (
                                 <tr key={index}>
@@ -86,8 +94,12 @@ const Holdings = () => {
                                     <td className={profClass}>
                                         {(curValue - stock.avg * stock.qty).toFixed(2)}
                                     </td>
-                                    <td className={profClass}>{stock.net}</td>
-                                    <td className={dayClass}>{stock.day}</td>
+                                    <td className={profClass}>
+                                        {stock.net > 0 ? "+": ""}{stock.net.toFixed(2)}%
+                                    </td>
+                                    <td className={dayClass}>
+                                        {stock.day > 0 ? "+" : ""}{stock.day.toFixed(2)}%
+                                    </td>
                                 </tr>
                             );
                         })}
@@ -98,18 +110,20 @@ const Holdings = () => {
             <div className="row">
                 <div className="col">
                     <h5>
-                        29,875.<span>55</span>{" "}
+                        {portfolioSummary.totalInvestment.toFixed(2)}
                     </h5>
                     <p>Total investment</p>
                 </div>
                 <div className="col">
                     <h5>
-                        31,428.<span>95</span>{" "}
+                        {portfolioSummary.currentValue.toFixed(2)}
                     </h5>
                     <p>Current value</p>
                 </div>
                 <div className="col">
-                    <h5>1,553.40 (+5.20%)</h5>
+                    <h5 className={portfolioSummary.totalPL >= 0 ? "profit" : "loss"}>
+                        {portfolioSummary.totalPL.toFixed(2)} ({portfolioSummary.pnlPercent.toFixed(2)}%)
+                    </h5>
                     <p>P&L</p>
                 </div>
             </div>

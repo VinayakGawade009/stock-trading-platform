@@ -50,6 +50,13 @@ export default function SignupForm() {
       }
     } catch (error) {
       console.log(error);
+      if (error.response && error.response.data && error.response.data.message) { // if specific error occured
+        handleError(error.response.data.message);
+      }
+      // If the server crashed or network failed
+      else {
+        handleError("Signup failed. Please try again.");
+      }
     }
     setInputValue({
       ...inputValue,
@@ -72,42 +79,47 @@ export default function SignupForm() {
             <div className="form_container">
               <form onSubmit={handleSubmit}>
                 <div className="mb-2">
-                  <label htmlFor="email" style={{fontSize: "1.1rem"}}>Email</label>
+                  <label htmlFor="email" style={{ fontSize: "1.1rem" }}>Email</label>
                   <br />
                   <input
-                    style={{width: "100%", height: "2.5rem"}}
+                    style={{ width: "100%", height: "2.5rem" }}
                     type="email"
                     name="email"
                     value={email}
                     placeholder="Enter your email"
                     onChange={handleOnChange}
+                    required
                   />
                 </div>
                 <div className="mb-2">
-                  <label htmlFor="username" style={{fontSize: "1.1rem"}}>Username</label>
+                  <label htmlFor="username" style={{ fontSize: "1.1rem" }}>Username</label>
                   <br />
                   <input
-                    style={{width: "100%", height: "2.5rem"}}
+                    style={{ width: "100%", height: "2.5rem" }}
                     type="text"
                     name="username"
                     value={username}
                     placeholder="Enter your username"
                     onChange={handleOnChange}
+                    required
+                    minLength={3}
                   />
                 </div>
                 <div className="mb-3">
-                  <label htmlFor="password" style={{fontSize: "1.1rem"}}>Password</label>
+                  <label htmlFor="password" style={{ fontSize: "1.1rem" }}>Password</label>
                   <br />
                   <input
-                    style={{width: "100%", height: "2.5rem"}}
+                    style={{ width: "100%", height: "2.5rem" }}
                     type="password"
                     name="password"
                     value={password}
                     placeholder="Enter your password"
                     onChange={handleOnChange}
+                    required
+                    minLength={3}
                   />
                 </div>
-                <button type="submit" className="p-2 btn fs-5 mb-2" style={{width: "37%", margin: "0 auto", backgroundColor: "#387ed1", color: "white", borderRadius: "3px"}}>Submit</button>
+                <button type="submit" className="p-2 btn fs-5 mb-2" style={{ width: "37%", margin: "0 auto", backgroundColor: "#387ed1", color: "white", borderRadius: "3px" }}>Submit</button>
                 <br />
                 <span>
                   Already have an account? <Link to={"/login"}>Login</Link>

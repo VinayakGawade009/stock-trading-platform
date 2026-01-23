@@ -210,12 +210,12 @@ app.use(cookieParser());
 // });
 
 app.get("/allHoldings", verifyUser, async (req, res) => {
-  let allHoldings = await HoldingsModel.find({});
+  let allHoldings = await HoldingsModel.find({user: req.user._id});
   res.json(allHoldings);
 });
 
 app.get("/allPositions", verifyUser, async (req, res) => {
-  let allPositions = await PositionsModel.find({});
+  let allPositions = await PositionsModel.find({user: req.user._id});
   res.json(allPositions);
 });
 
@@ -225,11 +225,15 @@ app.post("/newOrder", verifyUser, async (req, res) => {
     qty: req.body.qty,
     price: req.body.price,
     mode: "BUY",
+    user: req.user._id,
   }); 
 
-  newOrder.save();
+  await newOrder.save();
 
-  const existingHolding = await HoldingsModel.findOne({ name: newOrder.name });
+  const existingHolding = await HoldingsModel.findOne({ 
+    name: newOrder.name, 
+    user: req.user._id 
+  });
 
   if (!existingHolding) {
     // create new Holding
@@ -238,8 +242,9 @@ app.post("/newOrder", verifyUser, async (req, res) => {
       qty: newOrder.qty,
       avg: newOrder.price,
       price: newOrder.price,
-      net: "0%",
-      day: "0%",
+      net: 0,
+      day: 0,
+      user: req.user._id,
     });
 
     await newHolding.save();
@@ -263,7 +268,7 @@ app.post("/newOrder", verifyUser, async (req, res) => {
 });
 
 app.get("/allOrders", verifyUser, async (req, res) => {
-  let allOrders = await OrdersModel.find({});
+  let allOrders = await OrdersModel.find({user: req.user._id});
   res.json(allOrders);
 });
 
@@ -275,12 +280,13 @@ app.post("/sellOrder", verifyUser, async (req, res) => {
     qty: qty,
     price: price,
     mode: "SELL",
+    user: req.user._id,
   }); 
 
   sellOrder.save();
   res.send("Sell order saved");
 
-  const holding = await HoldingsModel.findOne({ name });
+  const holding = await HoldingsModel.findOne({ name, user: req.user._id });
 
   if (!holding) {
     return res.status(400).send("No holdings to sell");
@@ -294,7 +300,7 @@ app.post("/sellOrder", verifyUser, async (req, res) => {
   holding.price = price;
 
   if (holding.qty === 0) {
-    await HoldingsModel.deleteOne({ name });
+    await HoldingsModel.deleteOne({ name, user: req.user._id });
   } else {
     await holding.save();
   }
@@ -303,6 +309,16 @@ app.post("/sellOrder", verifyUser, async (req, res) => {
 
 // New auth route registration
 app.use("/auth", authRoutes);
+
+// Global Error Handler
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({
+    success: false,
+    message: "Something went wrong!",
+    error: process.env.NODE_ENV === "development" ? err.message : undefined
+  });
+});
 
 // Connect to database BEFORE starting server
 mongoose.connect(uri)

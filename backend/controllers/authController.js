@@ -1,21 +1,27 @@
 import User from "../model/UserModel.js";
 import bcrypt from "bcryptjs";
 import { createToken } from "../utils/createToken.js";
+import { signupSchema, loginSchema } from "../utils/validation.js";
  
 const cookieOptions = {
-  httpOnly: true,
-  sameSite: "lax",
-  secure: false, // true ONLY in production HTTPS
+  httpOnly: true, // Prevents JavaScript (XSS attacks) from stealing the token
+  sameSite: "lax", // Protects against CSRF attacks
+  secure: process.env.NODE_ENV === "production", // true ONLY in production HTTPS
 };
 
 
 export const signup = async (req, res) => {
   try {
-    const { email, password, username } = req.body;
+    // Zod validation layer
+    const validation = signupSchema.safeParse(req.body);
 
-    if (!email || !password || !username) {
-      return res.status(400).json({ message: "All fields required" });
+    if (!validation.success) {
+        return res.status(400).json({ 
+            message: validation.error.issues[0].message //ZodError object definitely has an .issues array
+        });
     }
+
+    const { email, password, username } = validation.data;
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
@@ -66,12 +72,17 @@ export const signup = async (req, res) => {
 
 export const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    // VALIDATION LAYER
+    const validation = loginSchema.safeParse(req.body);
 
-    if (!email || !password) {
-      return res.status(400).json({ message: "All fields required"});
+    if (!validation.success) {
+        return res.status(400).json({ 
+            message: validation.error.errors[0].message 
+        });
     }
 
+    const { email, password } = validation.data;
+    
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(401).json({ message: "Invalid credentials" });

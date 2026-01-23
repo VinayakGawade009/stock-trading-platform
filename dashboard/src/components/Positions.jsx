@@ -42,7 +42,7 @@ const Positions = () => {
               const curValue = stock.price * stock.qty;
               const isProfit = curValue - stock.avg * stock.qty >= 0.0;
               const profClass = isProfit ? "profit" : "loss";
-              const dayClass = stock.isLoss ? "loss" : "profit";
+              const dayClass = stock.day >= 0 ? "profit" : "loss";
 
               return (
                 <tr key={index}>
@@ -54,7 +54,9 @@ const Positions = () => {
                   <td className={profClass}>
                     {(curValue - stock.avg * stock.qty).toFixed(2)}
                   </td>
-                  <td className={dayClass}>{stock.day}</td>
+                  <td className={dayClass}>
+                    {stock.day > 0 ? "+" : ""}{stock.day.toFixed(2)}%
+                  </td>
                 </tr>
               )
             })}
