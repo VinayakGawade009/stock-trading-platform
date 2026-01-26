@@ -1,27 +1,29 @@
 import { useState, useEffect, useContext } from "react";
 
 // import { positions } from "../data/data";
-import axios from "axios";
+// import axios from "axios";
 
 import GeneralContext from "./GeneralContext";
 
 const Positions = () => {
 
-  const [allPositions, setAllPositions] = useState([]);
-  const { refreshCount } = useContext(GeneralContext);
+  // const [allPositions, setAllPositions] = useState([]);
+  // const { refreshCount } = useContext(GeneralContext);
 
-  useEffect(() => {
-    axios.get("http://localhost:3002/allPositions", { withCredentials: true }).then((res) => {
-      console.log(res.data);
-      setAllPositions(res.data);
-    }).catch((err) => {
-      console.error("Error fetching positions:", err);
-    });
-  }, [refreshCount]);
+  const { positions } = useContext(GeneralContext);
+
+  // useEffect(() => {
+  //   axios.get("http://localhost:3002/allPositions", { withCredentials: true }).then((res) => {
+  //     console.log(res.data);
+  //     setAllPositions(res.data);
+  //   }).catch((err) => {
+  //     console.error("Error fetching positions:", err);
+  //   });
+  // }, [refreshCount]);
 
   return (
     <>
-      <h3 className="title">Positions ({allPositions.length})</h3>
+      <h3 className="title">Positions ({positions.length})</h3>
 
       <div className="order-table">
         <table>
@@ -38,7 +40,7 @@ const Positions = () => {
           </thead>
 
           <tbody>
-            {allPositions.map((stock, index) => {
+            {positions.map((stock, index) => {
               const curValue = stock.price * stock.qty;
               const isProfit = curValue - stock.avg * stock.qty >= 0.0;
               const profClass = isProfit ? "profit" : "loss";

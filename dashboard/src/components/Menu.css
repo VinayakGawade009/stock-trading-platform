@@ -1,10 +1,29 @@
+/* 1. Ensure the profile looks clickable */
+.profile {
+  display: flex; /* Keeps avatar and name side-by-side */
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 4px;
+}
+
+/* 2. Fix the Dropdown Positioning */
 .profile-dropdown {
-  margin-top: 10px;
+  position: absolute; /* Takes it out of the normal flow */
+  top: 100%;
+  left: -100%;
+  width: 150px;       /* Give it a fixed width */
   background: white;
   border: 1px solid #ddd;
   border-radius: 6px;
   padding: 10px;
+  box-shadow: 0px 4px 6px rgba(0,0,0,0.1); /* Adds a nice shadow */
+  z-index: 1000;      /* Ensures it sits on top of everything */
+  margin-bottom: 10px; /* Small gap between profile and box */
 }
+
+/* If you prefer the dropdown BELOW the profile, change 'bottom: 100%' to 'top: 100%' */
 
 .logout-btn {
   width: 100%;
@@ -14,8 +33,23 @@
   color: white;
   border-radius: 4px;
   cursor: pointer;
+  font-weight: 500;
 }
 
 .logout-btn:hover {
   background-color: #c62828;
+}
+
+/* Style for the Avatar Circle */
+.avatar {
+  width: 30px;
+  height: 30px;
+  background-color: #e0e0e0; /* Light grey background */
+  color: #387ed1; /* Blue text */
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  font-size: 0.9rem;
 }

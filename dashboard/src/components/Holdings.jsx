@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from "react";
-import axios from "axios";
+// import axios from "axios";
 import { VerticalGraph } from "./VerticalGraph";
 
 // import { holdings } from "../data/data";
@@ -7,7 +7,9 @@ import { VerticalGraph } from "./VerticalGraph";
 import GeneralContext from "./GeneralContext";
 
 const Holdings = () => {
-    const [allHoldings, setAllHoldings] = useState([]);
+    // const [allHoldings, setAllHoldings] = useState([]);
+    const { holdings } = useContext(GeneralContext);
+
     const [portfolioSummary, setPortfolioSummary] = useState({
         totalInvestment: 0,
         currentValue: 0,
@@ -15,43 +17,60 @@ const Holdings = () => {
         pnlPercent: 0
     });
 
-    const { refreshCount } = useContext(GeneralContext);
+    // const { refreshCount } = useContext(GeneralContext);
 
+    // useEffect(() => {
+    //     axios.get("http://localhost:3002/allHoldings", { withCredentials: true }).then((res) => {
+    //         console.log(res.data);
+    //         setAllHoldings(res.data);
+
+    //         // Calculate totals dynamically from the fetched data
+    //         let investment = 0;
+    //         let currVal = 0;
+
+    //         res.data.forEach(stock => {
+    //             investment += stock.avg * stock.qty;
+    //             currVal += stock.price * stock.qty;
+    //         });
+
+    //         setPortfolioSummary({
+    //             totalInvestment: investment,
+    //             currentValue: currVal,
+    //             totalPL: currVal - investment,
+    //             pnlPercent: investment === 0 ? 0 : ((currVal - investment) / investment) * 100
+    //         });
+
+    //     }).catch((err) => {
+    //         console.error("Error fetching holdings:", err);
+    //     });
+    // }, [refreshCount]); // refreshCount added to dependency array
+
+    // 2. Recalculate summary only when 'holdings' data updates
     useEffect(() => {
-        axios.get("http://localhost:3002/allHoldings", { withCredentials: true }).then((res) => {
-            console.log(res.data);
-            setAllHoldings(res.data);
+        let investment = 0;
+        let currVal = 0;
 
-            // Calculate totals dynamically from the fetched data
-            let investment = 0;
-            let currVal = 0;
-
-            res.data.forEach(stock => {
-                investment += stock.avg * stock.qty;
-                currVal += stock.price * stock.qty;
-            });
-
-            setPortfolioSummary({
-                totalInvestment: investment,
-                currentValue: currVal,
-                totalPL: currVal - investment,
-                pnlPercent: investment === 0 ? 0 : ((currVal - investment) / investment) * 100
-            });
-
-        }).catch((err) => {
-            console.error("Error fetching holdings:", err);
+        holdings.forEach(stock => {
+            investment += stock.avg * stock.qty;
+            currVal += stock.price * stock.qty;
         });
-    }, [refreshCount]); // refreshCount added to dependency array
 
+        setPortfolioSummary({
+            totalInvestment: investment,
+            currentValue: currVal,
+            totalPL: currVal - investment,
+            pnlPercent: investment === 0 ? 0 : ((currVal - investment) / investment) * 100
+        });
+    }, [holdings]);
 
-    const labels = allHoldings.map((subArray) => subArray["name"]);
+    const labels = holdings.map((subArray) => subArray["name"]);
 
     const data = {
         labels,
         datasets: [
             {
                 label: "Stock Price",
-                data: allHoldings.map((stock) => stock.price),
+                data: holdings.map((stock) => stock.price),
                 backgroundColor: "rgba(255, 99, 132, 0.5)",
             },
         ],
@@ -60,7 +79,7 @@ const Holdings = () => {
     return (
         <>
             {/* dynamic length */}
-            <h3 className="title">Holdings ({allHoldings.length})</h3>
+            <h3 className="title">Holdings ({holdings.length})</h3>
 
             <div className="order-table">
                 <table>
@@ -78,7 +97,7 @@ const Holdings = () => {
                     </thead>
 
                     <tbody>
-                        {allHoldings.map((stock, index) => {
+                        {holdings.map((stock, index) => {
                             const curValue = stock.price * stock.qty;
                             const isProfit = curValue - stock.avg * stock.qty >= 0.0;
                             const profClass = isProfit ? "profit" : "loss";

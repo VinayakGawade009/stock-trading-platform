@@ -1,32 +1,34 @@
 import { useState, useEffect, useContext } from "react";
 import { Link } from "react-router-dom";
-import axios from "axios";
+// import axios from "axios";
 
 import GeneralContext from "./GeneralContext";
 
 const Orders = () => {
-  const [allOrders, setAllOrders] = useState([]);
-  const { refreshCount } = useContext(GeneralContext);
+  // const [allOrders, setAllOrders] = useState([]);
+  // const { refreshCount } = useContext(GeneralContext);
 
-  useEffect(() => {
-    axios.get("http://localhost:3002/allOrders", { withCredentials: true }).then((res) => {
-      console.log(res.data);
-      setAllOrders(res.data);
-    }).catch((err) => {
-      console.error("Error fetching orders:", err);
-    });
-  }, [refreshCount]);
+  const { orders } = useContext(GeneralContext);
+
+  // useEffect(() => {
+  //   axios.get("http://localhost:3002/allOrders", { withCredentials: true }).then((res) => {
+  //     console.log(res.data);
+  //     setAllOrders(res.data);
+  //   }).catch((err) => {
+  //     console.error("Error fetching orders:", err);
+  //   });
+  // }, [refreshCount]);
 
   return (
     <div className="orders">
-      {allOrders.length === 0 ? (
+      {orders.length === 0 ? (
         <div className="no-orders">
           <p>You haven't placed any orders today</p>
           <Link to="/" className="btn">Get started</Link>
         </div>
       ) : (
         <>
-          <h3 className="title">Orders ({allOrders.length})</h3>
+          <h3 className="title">Orders ({orders.length})</h3>
 
           <div className="order-table">
             <table>
@@ -40,7 +42,7 @@ const Orders = () => {
               </thead>
 
               <tbody>
-                {allOrders.map((stock, index) => (
+                {orders.map((stock, index) => (
                   <tr key={index}>
                     <td>{stock.name}</td>
                     <td>{stock.qty}</td>
